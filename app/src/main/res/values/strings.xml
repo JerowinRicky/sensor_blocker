@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Device Lockdown</string>
+    <string name="device_admin_description">Enforces system-wide hardware, sensor, and privacy lockdown policies to safeguard device integrity.</string>
+</resources>
+

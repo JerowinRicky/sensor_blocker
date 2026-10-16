@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Permissions required for system lockdown functionality -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- Protected custom signature permission for Emergency Companion App IPC -->
+    <permission
+        android:name="com.sensorlockdown.app.permission.EMERGENCY_RECOVERY"
+        android:protectionLevel="signature" />
+
+    <application
+        android:name=".LockdownApplication"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:icon="@android:drawable/ic_secure"
+        android:label="@string/app_name"
+        android:roundIcon="@android:drawable/ic_secure"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.Material.NoActionBar">
+
+        <!-- Main UI Entry Point -->
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Device Admin Receiver for DevicePolicyManager / Device Owner -->
+        <receiver
+            android:name=".devicepolicy.LockdownDeviceAdminReceiver"
+            android:description="@string/device_admin_description"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_DEVICE_ADMIN"
+            android:exported="true">
+            <meta-data
+                android:name="android.app.device_admin"
+                android:resource="@xml/device_admin" />
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+                <action android:name="android.app.action.DEVICE_ADMIN_DISABLE_REQUESTED" />
+                <action android:name="android.app.action.DEVICE_ADMIN_DISABLED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Device Boot Receiver to verify & enforce persistent policies -->
+        <receiver
+            android:name=".receiver.BootReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Secure IPC Provider for Emergency Recovery Companion App -->
+        <provider
+            android:name=".emergency.EmergencyRecoveryProvider"
+            android:authorities="com.sensorlockdown.app.emergency"
+            android:permission="com.sensorlockdown.app.permission.EMERGENCY_RECOVERY"
+            android:exported="true" />
+
+    </application>
+
+</manifest>
+

@@ -110,3 +110,4 @@ class SecurityPreferences(context: Context) {
         private const val KEY_ENCRYPTED_EMERGENCY_SECRET = "sec_emergency_recovery_secret"
     }
 }
+
