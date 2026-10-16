@@ -295,7 +295,7 @@ fun DashboardScreen(
                             }
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
-                                text = "Activate Device Administrator directly on this phone to enable camera lock and screen capture blocking.",
+                                text = "Activate Device Administrator directly on this phone to enable camera lock, screen capture blocking, and prevent unauthorized app drawer uninstallation.",
                                 fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 lineHeight = 16.sp

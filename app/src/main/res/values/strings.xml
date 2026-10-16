@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Device Lockdown</string>
     <string name="device_admin_description">Enforces system-wide hardware, sensor, and privacy lockdown policies to safeguard device integrity.</string>
+    <string name="accessibility_service_description">Protects Device Lockdown from unauthorized uninstallation or deactivation from the App Drawer, Launcher, and System Settings without entering your 6-digit PIN.</string>
 </resources>
 

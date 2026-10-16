@@ -40,6 +40,8 @@ class DevicePolicyController(private val context: Context) {
 
     /**
      * Creates system intent to prompt user to activate Device Administrator directly on their phone.
+     * Note: Must NOT include FLAG_ACTIVITY_NEW_TASK when started with ActivityResultLauncher,
+     * as Android rejects starting for result with new task and immediately returns RESULT_CANCELED.
      */
     fun createAddDeviceAdminIntent(): android.content.Intent {
         return android.content.Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
@@ -48,7 +50,6 @@ class DevicePolicyController(private val context: Context) {
                 DevicePolicyManager.EXTRA_ADD_EXPLANATION,
                 "Activate Device Administrator to allow Device Lockdown to disable camera hardware and enforce system-wide screen capture protection."
             )
-            addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
         }
     }
 

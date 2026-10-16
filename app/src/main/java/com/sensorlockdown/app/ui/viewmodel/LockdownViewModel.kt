@@ -5,6 +5,7 @@ import android.os.Build
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.sensorlockdown.app.LockdownApplication
+import com.sensorlockdown.app.accessibility.UninstallProtectionAccessibilityService
 import com.sensorlockdown.app.authentication.model.AuthResult
 import com.sensorlockdown.app.authentication.model.RateLimitState
 import com.sensorlockdown.app.devicepolicy.DeviceManagementState
@@ -67,6 +68,9 @@ class LockdownViewModel(application: Application) : AndroidViewModel(application
     private val _integrityResult = MutableStateFlow(DeviceIntegrityChecker.IntegrityResult(false, false, false, emptyList()))
     val integrityResult: StateFlow<DeviceIntegrityChecker.IntegrityResult> = _integrityResult.asStateFlow()
 
+    private val _showUninstallAuthPrompt = MutableStateFlow(false)
+    val showUninstallAuthPrompt: StateFlow<Boolean> = _showUninstallAuthPrompt.asStateFlow()
+
     private var countdownJob: Job? = null
 
     init {
@@ -80,6 +84,22 @@ class LockdownViewModel(application: Application) : AndroidViewModel(application
     fun isPinSet(): Boolean = app.pinAuthenticationService.isPinSet()
 
     fun isAdminActive(): Boolean = app.devicePolicyController.isAdminActive()
+
+    fun isUninstallShieldActive(): Boolean = UninstallProtectionAccessibilityService.isServiceEnabled(app)
+
+    fun openAccessibilitySettings() {
+        try {
+            app.startActivity(UninstallProtectionAccessibilityService.createOpenAccessibilitySettingsIntent())
+        } catch (ignored: Exception) {}
+    }
+
+    fun triggerUninstallAuthPrompt() {
+        _showUninstallAuthPrompt.value = true
+    }
+
+    fun dismissUninstallAuthPrompt() {
+        _showUninstallAuthPrompt.value = false
+    }
 
     fun createAddDeviceAdminIntent(): android.content.Intent {
         return app.devicePolicyController.createAddDeviceAdminIntent()
@@ -236,6 +256,9 @@ class LockdownViewModel(application: Application) : AndroidViewModel(application
     fun uninstallAppWithPin(pin: String): AuthResult {
         val result = app.pinAuthenticationService.authenticate(pin)
         if (result is AuthResult.Success) {
+            // Authorize external uninstaller to proceed without accessibility intercept
+            UninstallProtectionAccessibilityService.authorizeUninstall(60_000L)
+
             app.auditLogger.logEvent(
                 eventType = AuditLogger.EventType.LOCKDOWN_DEACTIVATED,
                 details = "Authorized uninstallation requested with valid PIN.",

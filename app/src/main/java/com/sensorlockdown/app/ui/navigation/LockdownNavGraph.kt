@@ -8,6 +8,8 @@ import androidx.compose.runtime.getValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.sensorlockdown.app.authentication.model.AuthResult
+import com.sensorlockdown.app.ui.components.UninstallAppDialog
 import com.sensorlockdown.app.ui.screens.AuditLogsScreen
 import com.sensorlockdown.app.ui.screens.DashboardScreen
 import com.sensorlockdown.app.ui.screens.DeviceManagementInfoScreen
@@ -31,6 +33,7 @@ fun LockdownNavGraph(
     val activationProgress by viewModel.activationProgress.collectAsState()
     val auditLogs by viewModel.auditLogs.collectAsState()
     val integrityResult by viewModel.integrityResult.collectAsState()
+    val showUninstallAuthPrompt by viewModel.showUninstallAuthPrompt.collectAsState()
 
     val adminLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -122,6 +125,8 @@ fun LockdownNavGraph(
                 onToggleScreenCapture = { viewModel.setScreenCaptureProtection(it) },
                 onChangePinSubmit = { cur, new, conf -> viewModel.changePin(cur, new, conf) },
                 onUninstallAppSubmit = { pin -> viewModel.uninstallAppWithPin(pin) },
+                isUninstallShieldActive = viewModel.isUninstallShieldActive(),
+                onOpenAccessibilitySettings = { viewModel.openAccessibilitySettings() },
                 emergencyRecoverySecret = viewModel.getEmergencyRecoverySecret(),
                 onBack = { navController.popBackStack() }
             )
@@ -143,6 +148,23 @@ fun LockdownNavGraph(
                 }
             )
         }
+    }
+
+    if (showUninstallAuthPrompt) {
+        UninstallAppDialog(
+            title = "Authorize App Drawer Uninstallation",
+            description = "An uninstallation attempt was detected from the App Drawer or System Settings. Enter your 6-digit PIN to authorize.",
+            onConfirmUninstall = { pin ->
+                val result = viewModel.uninstallAppWithPin(pin)
+                if (result is AuthResult.Success) {
+                    viewModel.dismissUninstallAuthPrompt()
+                }
+                result
+            },
+            onDismiss = {
+                viewModel.dismissUninstallAuthPrompt()
+            }
+        )
     }
 }
 

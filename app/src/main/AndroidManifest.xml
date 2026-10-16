@@ -70,6 +70,19 @@
             android:permission="com.sensorlockdown.app.permission.EMERGENCY_RECOVERY"
             android:exported="true" />
 
+        <!-- App Drawer & Settings Uninstall Shield Accessibility Service -->
+        <service
+            android:name=".accessibility.UninstallProtectionAccessibilityService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/uninstall_protection_service_config" />
+        </service>
+
     </application>
 
 </manifest>

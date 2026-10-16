@@ -16,6 +16,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        handleIntent(intent)
 
         // Apply FLAG_SECURE window shield to prevent screenshots / screen scraping
         if (viewModel.getScreenCaptureProtection()) {
@@ -36,10 +37,23 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: android.content.Intent?) {
+        if (intent?.getBooleanExtra(com.sensorlockdown.app.accessibility.UninstallProtectionAccessibilityService.EXTRA_PROMPT_UNINSTALL_PIN, false) == true) {
+            viewModel.triggerUninstallAuthPrompt()
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         viewModel.refreshRateLimitState()
         viewModel.refreshPolicy()
+        viewModel.refreshDeviceInfo()
     }
 }
 

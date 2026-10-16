@@ -50,10 +50,12 @@ import androidx.compose.ui.unit.sp
 import com.sensorlockdown.app.authentication.model.AuthResult
 import com.sensorlockdown.app.security.DeviceIntegrityChecker
 import com.sensorlockdown.app.ui.components.PinInputView
+import com.sensorlockdown.app.ui.components.UninstallAppDialog
 import com.sensorlockdown.app.ui.theme.Slate500
 import com.sensorlockdown.app.ui.theme.Slate700
 import com.sensorlockdown.app.ui.theme.StatusAlertRed
 import com.sensorlockdown.app.ui.theme.StatusEnforcedGreen
+import com.sensorlockdown.app.ui.theme.StatusPartialOrange
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,6 +65,8 @@ fun SecuritySettingsScreen(
     onToggleScreenCapture: (Boolean) -> Unit,
     onChangePinSubmit: (String, String, String) -> AuthResult,
     onUninstallAppSubmit: (String) -> AuthResult = { AuthResult.Success },
+    isUninstallShieldActive: Boolean = false,
+    onOpenAccessibilitySettings: () -> Unit = {},
     emergencyRecoverySecret: String?,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
@@ -185,6 +189,56 @@ fun SecuritySettingsScreen(
                     for (finding in integrityResult.findings) {
                         Text(text = "• $finding", fontSize = 12.sp, color = StatusAlertRed)
                     }
+                }
+            }
+
+            // App Drawer Uninstall Shield Card
+            SettingSectionCard(title = "APP DRAWER UNINSTALL SHIELD") {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Outside Uninstallation Shield",
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 14.sp
+                        )
+                        Text(
+                            text = "Intercepts uninstall attempts from App Drawer, Launcher, and Settings, prompting for 6-digit PIN.",
+                            fontSize = 12.sp,
+                            color = Slate500,
+                            lineHeight = 16.sp
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .size(10.dp)
+                            .background(
+                                if (isUninstallShieldActive) StatusEnforcedGreen else StatusPartialOrange,
+                                RoundedCornerShape(5.dp)
+                            )
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                if (!isUninstallShieldActive) {
+                    Button(
+                        onClick = onOpenAccessibilitySettings,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(6.dp)
+                    ) {
+                        Text("ENABLE APP DRAWER SHIELD (ACCESSIBILITY)")
+                    }
+                } else {
+                    Text(
+                        text = "✓ Shield Active: Outside uninstallation from App Drawer and Settings is locked.",
+                        color = StatusEnforcedGreen,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             }
 
@@ -363,71 +417,4 @@ private fun ChangePinDialog(
     )
 }
 
-@Composable
-private fun UninstallAppDialog(
-    onConfirmUninstall: (String) -> AuthResult,
-    onDismiss: () -> Unit
-) {
-    var enteredPin by remember { mutableStateOf("") }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(text = "Authorize Uninstallation", fontWeight = FontWeight.Bold) },
-        text = {
-            Column {
-                Text(
-                    text = "Enter your 6-digit security PIN to authorize deactivation and complete uninstallation of Sensor Lockdown.",
-                    fontSize = 13.sp,
-                    lineHeight = 18.sp
-                )
-                Spacer(modifier = Modifier.height(14.dp))
-                PinInputView(
-                    pin = enteredPin,
-                    onPinChange = {
-                        enteredPin = it
-                        errorMessage = null
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                errorMessage?.let {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = it, color = StatusAlertRed, fontSize = 12.sp)
-                }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    if (enteredPin.length != 6) {
-                        errorMessage = "Please enter full 6-digit PIN"
-                        return@Button
-                    }
-                    when (val result = onConfirmUninstall(enteredPin)) {
-                        is AuthResult.Success -> {
-                            onDismiss()
-                        }
-                        is AuthResult.InvalidPin -> {
-                            errorMessage = "Incorrect PIN. Attempts remaining: ${result.remainingAttemptsBeforeLockout}"
-                        }
-                        is AuthResult.LockedOut -> {
-                            errorMessage = "Locked out for ${result.lockoutSecondsRemaining}s"
-                        }
-                        is AuthResult.ValidationError -> {
-                            errorMessage = result.message
-                        }
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = StatusAlertRed)
-            ) {
-                Text("VERIFY & UNINSTALL")
-            }
-        },
-        dismissButton = {
-            OutlinedButton(onClick = onDismiss) {
-                Text("CANCEL")
-            }
-        }
-    )
-}
 
