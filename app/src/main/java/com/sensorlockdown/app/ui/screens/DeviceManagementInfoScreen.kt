@@ -109,7 +109,7 @@ fun DeviceManagementInfoScreen(
             }
 
             // Direct Device Admin Activation Card (No PC / ADB Needed)
-            if (deviceInfo.managementState == DeviceManagementState.UNMANAGED) {
+            if (deviceInfo.managementState == DeviceManagementState.NORMAL_APP) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()

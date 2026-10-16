@@ -266,7 +266,7 @@ fun DashboardScreen(
             }
 
             // Device Administrator Activation Banner
-            if (deviceInfo.managementState == DeviceManagementState.UNMANAGED) {
+            if (deviceInfo.managementState == DeviceManagementState.NORMAL_APP) {
                 item {
                     Box(
                         modifier = Modifier
@@ -334,7 +334,7 @@ fun DashboardScreen(
                                 policy = control,
                                 onToggle = { enable ->
                                     if (enable && (control.controlId == ControlId.CAMERA || control.controlId == ControlId.SCREEN_CAPTURE) &&
-                                        deviceInfo.managementState == DeviceManagementState.UNMANAGED
+                                        deviceInfo.managementState == DeviceManagementState.NORMAL_APP
                                     ) {
                                         showAdminPromptDialog = control.controlId
                                     }

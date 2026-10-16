@@ -384,7 +384,7 @@ private fun UninstallAppDialog(
                 Spacer(modifier = Modifier.height(14.dp))
                 PinInputView(
                     pin = enteredPin,
-                    onPinChanged = {
+                    onPinChange = {
                         enteredPin = it
                         errorMessage = null
                     },

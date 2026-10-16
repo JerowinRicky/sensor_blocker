@@ -14,6 +14,7 @@ import com.sensorlockdown.app.lockdown.model.ControlPolicy
 import com.sensorlockdown.app.lockdown.model.LockdownPolicy
 import com.sensorlockdown.app.lockdown.model.OverallLockdownStatus
 import com.sensorlockdown.app.persistence.entity.AuditLogEntity
+import com.sensorlockdown.app.security.AuditLogger
 import com.sensorlockdown.app.security.DeviceIntegrityChecker
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -233,7 +234,7 @@ class LockdownViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun uninstallAppWithPin(pin: String): AuthResult {
-        val result = app.pinAuthenticationService.verifyPin(pin)
+        val result = app.pinAuthenticationService.authenticate(pin)
         if (result is AuthResult.Success) {
             app.auditLogger.logEvent(
                 eventType = AuditLogger.EventType.LOCKDOWN_DEACTIVATED,
