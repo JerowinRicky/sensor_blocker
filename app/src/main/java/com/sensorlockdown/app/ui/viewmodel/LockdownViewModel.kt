@@ -238,7 +238,6 @@ class LockdownViewModel(application: Application) : AndroidViewModel(application
         if (result is AuthResult.Success) {
             app.auditLogger.logEvent(
                 eventType = AuditLogger.EventType.LOCKDOWN_DEACTIVATED,
-                actor = AuditLogger.ACTOR_USER,
                 details = "Authorized uninstallation requested with valid PIN.",
                 isSuccess = true
             )
@@ -270,8 +269,7 @@ class LockdownViewModel(application: Application) : AndroidViewModel(application
             }
         } else {
             app.auditLogger.logEvent(
-                eventType = AuditLogger.EventType.AUTH_FAILURE,
-                actor = AuditLogger.ACTOR_USER,
+                eventType = AuditLogger.EventType.LOGIN_FAILED,
                 details = "Unauthorized uninstallation attempt with invalid PIN.",
                 isSuccess = false
             )
