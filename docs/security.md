@@ -91,3 +91,4 @@ All security-sensitive operations are appended to an immutable Room audit table:
   - `UNAUTHORIZED_ATTEMPT`
   - `DEVICE_OWNER_STATUS_CHANGED`
 - **Sanitization Guarantee**: Plaintext PINs, recovery passwords, and encryption keys are strictly scrubbed prior to log serialization.
+

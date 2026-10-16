@@ -87,3 +87,4 @@ The **Android Hardware, Sensor & Device Privacy Lockdown System** is designed wi
   - Custom signature-level permission (`protectionLevel="signature"`).
   - Mutual certificate fingerprint verification (`PackageManager.hasSigningEngine` / `SigningInfo`).
   - Strict audit logging of every emergency access attempt.
+

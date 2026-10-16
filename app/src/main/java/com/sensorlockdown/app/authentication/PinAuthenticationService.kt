@@ -124,3 +124,4 @@ class PinAuthenticationService(
         return AuthResult.Success
     }
 }
+

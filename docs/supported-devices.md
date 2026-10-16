@@ -39,3 +39,4 @@ Samsung Knox adds additional security layers. Standard AOSP `dpm set-device-owne
 1. Enable `USB debugging (Security settings)` in Developer options (requires SIM card and Mi Account on some firmware).
 2. Disable `MIUI optimization` in Developer options if the command errors with `SecurityException`.
 3. Execute the ADB command immediately after initial device setup.
+

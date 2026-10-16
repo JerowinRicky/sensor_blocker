@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 rootProject.name = "AndroidSensorLockdown"
 include(":app")
 include(":emergency-app")
+

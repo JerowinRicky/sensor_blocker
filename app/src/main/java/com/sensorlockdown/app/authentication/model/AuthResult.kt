@@ -12,3 +12,4 @@ data class RateLimitState(
     val failedAttempts: Int,
     val secondsRemaining: Long
 )
+

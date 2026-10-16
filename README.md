@@ -132,3 +132,4 @@ For details on brute-force mitigations, IPC authorization, screen capture defens
 ## 7. License
 
 Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for details.
+

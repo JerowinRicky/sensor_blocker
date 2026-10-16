@@ -90,3 +90,4 @@ For enterprise rollouts, the application can be provisioned via standard Android
 | **Factory Reset** | `UserManager.DISALLOW_FACTORY_RESET` | Fully Enforced (DO) | `dpm.getUserRestrictions()` |
 | **Safe Boot** | `UserManager.DISALLOW_SAFE_BOOT` | Fully Enforced (DO) | `dpm.getUserRestrictions()` |
 | **Raw Sensors** | N/A (Hardware Bus) | **UNSUPPORTED in AOSP** | Honest System Disclosure |
+

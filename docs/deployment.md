@@ -93,3 +93,4 @@ adb shell dpm set-device-owner com.sensorlockdown.app/.devicepolicy.LockdownDevi
 
 ### Option B: Zero-Touch / QR Code Enrollment (Enterprise Production)
 Enterprise MDMs (Google Workspace, Microsoft Intune, VMware Workspace ONE) can distribute the signed release APK during initial zero-touch enrollment.
+
