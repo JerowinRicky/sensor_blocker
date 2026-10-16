@@ -1,7 +1,6 @@
 package com.sensorlockdown.app.privacy
 
 import android.content.Context
-import android.hardware.SensorPrivacyManager
 import android.media.AudioManager
 import android.os.Build
 import com.sensorlockdown.app.devicepolicy.DevicePolicyController
@@ -19,9 +18,9 @@ class PrivacyController(
     private val audioManager: AudioManager? =
         context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
 
-    private val sensorPrivacyManager: SensorPrivacyManager? =
+    private val sensorPrivacyManager: Any? =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            context.getSystemService(Context.SENSOR_PRIVACY_SERVICE) as? SensorPrivacyManager
+            context.getSystemService("sensor_privacy")
         } else {
             null
         }
