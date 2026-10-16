@@ -67,6 +67,7 @@ fun SecuritySettingsScreen(
     onUninstallAppSubmit: (String) -> AuthResult = { AuthResult.Success },
     isUninstallShieldActive: Boolean = false,
     onOpenAccessibilitySettings: () -> Unit = {},
+    onOpenAppDetailsSettings: () -> Unit = {},
     emergencyRecoverySecret: String?,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
@@ -231,6 +232,14 @@ fun SecuritySettingsScreen(
                         shape = RoundedCornerShape(6.dp)
                     ) {
                         Text("ENABLE APP DRAWER SHIELD (ACCESSIBILITY)")
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                    OutlinedButton(
+                        onClick = onOpenAppDetailsSettings,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(6.dp)
+                    ) {
+                        Text("ALLOW RESTRICTED SETTINGS (APP INFO)")
                     }
                 } else {
                     Text(

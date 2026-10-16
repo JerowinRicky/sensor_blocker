@@ -69,6 +69,7 @@ fun DashboardScreen(
     deviceInfo: DeviceInfo,
     lockdownPolicy: LockdownPolicy,
     activationProgress: ActivationProgress,
+    isUninstallShieldActive: Boolean = false,
     onToggleControl: (ControlId, Boolean) -> Unit,
     onActivateLockdown: () -> Unit,
     onDeactivateLockdown: () -> Unit,
@@ -76,6 +77,9 @@ fun DashboardScreen(
     onNavigateToAuditLogs: () -> Unit,
     onNavigateToDeviceInfo: () -> Unit,
     onActivateDeviceAdmin: () -> Unit = {},
+    onOpenAccessibilitySettings: () -> Unit = {},
+    onOpenDeviceAdminSettings: () -> Unit = {},
+    onOpenAppDetailsSettings: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var showActivationDialog by remember { mutableStateOf(false) }
@@ -295,26 +299,126 @@ fun DashboardScreen(
                             }
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
-                                text = "Activate Device Administrator directly on this phone to enable camera lock, screen capture blocking, and prevent unauthorized app drawer uninstallation.",
+                                text = "Activate Device Administrator to enable camera lock, screen capture blocking, and prevent uninstallation.",
                                 fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 lineHeight = 16.sp
                             )
                             Spacer(modifier = Modifier.height(10.dp))
-                            Button(
-                                onClick = onActivateDeviceAdmin,
+                            Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(6.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = StatusPartialOrange,
-                                    contentColor = MaterialTheme.colorScheme.surface
-                                )
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Button(
+                                    onClick = onActivateDeviceAdmin,
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(6.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = StatusPartialOrange,
+                                        contentColor = MaterialTheme.colorScheme.surface
+                                    )
+                                ) {
+                                    Text(
+                                        text = "ACTIVATE POPUP",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 11.sp
+                                    )
+                                }
+                                OutlinedButton(
+                                    onClick = onOpenDeviceAdminSettings,
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(6.dp)
+                                ) {
+                                    Text(
+                                        text = "OPEN IN SETTINGS",
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 11.sp
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(6.dp))
+                            OutlinedButton(
+                                onClick = onOpenAppDetailsSettings,
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(6.dp)
                             ) {
                                 Text(
-                                    text = "ACTIVATE DEVICE ADMINISTRATOR",
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 12.sp
+                                    text = "ALLOW RESTRICTED SETTINGS (IF BLOCKED)",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.SemiBold
                                 )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // App Drawer Uninstall Shield Banner
+            if (!isUninstallShieldActive) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(StatusPartialOrangeBg)
+                            .border(1.dp, StatusPartialOrange.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                            .padding(14.dp)
+                    ) {
+                        Column {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.Lock,
+                                    contentDescription = null,
+                                    tint = StatusPartialOrange,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.size(8.dp))
+                                Text(
+                                    text = "APP DRAWER UNINSTALL SHIELD (INACTIVE)",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = StatusPartialOrange,
+                                    letterSpacing = 1.sp
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "To require your 6-digit PIN when uninstalling from the home screen or app drawer, turn on the Accessibility Service.",
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                lineHeight = 16.sp
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Button(
+                                    onClick = onOpenAccessibilitySettings,
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(6.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = StatusPartialOrange,
+                                        contentColor = MaterialTheme.colorScheme.surface
+                                    )
+                                ) {
+                                    Text(
+                                        text = "ENABLE SHIELD",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 11.sp
+                                    )
+                                }
+                                OutlinedButton(
+                                    onClick = onOpenAppDetailsSettings,
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(6.dp)
+                                ) {
+                                    Text(
+                                        text = "APP INFO (3 DOTS)",
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 11.sp
+                                    )
+                                }
                             }
                         }
                     }

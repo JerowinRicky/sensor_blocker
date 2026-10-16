@@ -53,6 +53,41 @@ class DevicePolicyController(private val context: Context) {
         }
     }
 
+    /**
+     * Directly opens the phone's system Device Admin Apps settings screen.
+     * Useful when OEM skins (Samsung, Xiaomi, Vivo, Oppo) cancel or reject ACTION_ADD_DEVICE_ADMIN.
+     */
+    fun openDeviceAdminSettings() {
+        try {
+            val intent = android.content.Intent().apply {
+                component = ComponentName("com.android.settings", "com.android.settings.DeviceAdminSettings")
+                flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            try {
+                val intent = android.content.Intent(android.provider.Settings.ACTION_SECURITY_SETTINGS).apply {
+                    flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                context.startActivity(intent)
+            } catch (ignored: Exception) {}
+        }
+    }
+
+    /**
+     * Directly opens the App Info screen for this app in phone Settings.
+     * Required on Android 13 & 14 to tap the 3 dots (⋮) and choose "Allow restricted settings".
+     */
+    fun openAppDetailsSettings() {
+        try {
+            val intent = android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = android.net.Uri.fromParts("package", context.packageName, null)
+                flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+            context.startActivity(intent)
+        } catch (ignored: Exception) {}
+    }
+
     // ==========================================
     // Camera Policy
     // ==========================================

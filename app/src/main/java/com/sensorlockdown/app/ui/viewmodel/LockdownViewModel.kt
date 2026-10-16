@@ -105,6 +105,14 @@ class LockdownViewModel(application: Application) : AndroidViewModel(application
         return app.devicePolicyController.createAddDeviceAdminIntent()
     }
 
+    fun openDeviceAdminSettings() {
+        app.devicePolicyController.openDeviceAdminSettings()
+    }
+
+    fun openAppDetailsSettings() {
+        app.devicePolicyController.openAppDetailsSettings()
+    }
+
     fun openSystemPrivacySettings() {
         app.privacyController.openSystemPrivacySettings()
     }

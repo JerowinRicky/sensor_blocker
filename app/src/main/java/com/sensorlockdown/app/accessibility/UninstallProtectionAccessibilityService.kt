@@ -62,7 +62,9 @@ class UninstallProtectionAccessibilityService : AccessibilityService() {
             val desc = n.contentDescription?.toString()?.lowercase() ?: ""
 
             if (text.contains("device lockdown") || text.contains("sensor lockdown") || text.contains("sensor_blocker") ||
-                desc.contains("device lockdown") || desc.contains("sensor lockdown") || desc.contains("sensor_blocker")
+                text.contains("sensorlockdown") || text.contains("com.sensorlockdown.app") ||
+                desc.contains("device lockdown") || desc.contains("sensor lockdown") || desc.contains("sensor_blocker") ||
+                desc.contains("sensorlockdown") || desc.contains("com.sensorlockdown.app")
             ) {
                 mentionsOurApp = true
             }

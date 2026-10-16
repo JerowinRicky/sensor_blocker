@@ -86,6 +86,7 @@ fun LockdownNavGraph(
                 deviceInfo = deviceInfo,
                 lockdownPolicy = lockdownPolicy,
                 activationProgress = activationProgress,
+                isUninstallShieldActive = viewModel.isUninstallShieldActive(),
                 onToggleControl = { id, en -> viewModel.toggleControlSelection(id, en) },
                 onActivateLockdown = {
                     viewModel.activateLockdown {
@@ -103,7 +104,10 @@ fun LockdownNavGraph(
                 onNavigateToDeviceInfo = { navController.navigate(Screen.DeviceManagementInfo.route) },
                 onActivateDeviceAdmin = {
                     adminLauncher.launch(viewModel.createAddDeviceAdminIntent())
-                }
+                },
+                onOpenAccessibilitySettings = { viewModel.openAccessibilitySettings() },
+                onOpenDeviceAdminSettings = { viewModel.openDeviceAdminSettings() },
+                onOpenAppDetailsSettings = { viewModel.openAppDetailsSettings() }
             )
         }
 
@@ -127,6 +131,7 @@ fun LockdownNavGraph(
                 onUninstallAppSubmit = { pin -> viewModel.uninstallAppWithPin(pin) },
                 isUninstallShieldActive = viewModel.isUninstallShieldActive(),
                 onOpenAccessibilitySettings = { viewModel.openAccessibilitySettings() },
+                onOpenAppDetailsSettings = { viewModel.openAppDetailsSettings() },
                 emergencyRecoverySecret = viewModel.getEmergencyRecoverySecret(),
                 onBack = { navController.popBackStack() }
             )
@@ -145,7 +150,9 @@ fun LockdownNavGraph(
                 onBack = { navController.popBackStack() },
                 onActivateDeviceAdmin = {
                     adminLauncher.launch(viewModel.createAddDeviceAdminIntent())
-                }
+                },
+                onOpenDeviceAdminSettings = { viewModel.openDeviceAdminSettings() },
+                onOpenAppDetailsSettings = { viewModel.openAppDetailsSettings() }
             )
         }
     }

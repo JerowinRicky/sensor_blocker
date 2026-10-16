@@ -15,12 +15,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -46,6 +48,8 @@ fun DeviceManagementInfoScreen(
     deviceInfo: DeviceInfo,
     onBack: () -> Unit,
     onActivateDeviceAdmin: () -> Unit = {},
+    onOpenDeviceAdminSettings: () -> Unit = {},
+    onOpenAppDetailsSettings: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val isOwner = deviceInfo.managementState == DeviceManagementState.DEVICE_OWNER
@@ -134,19 +138,47 @@ fun DeviceManagementInfoScreen(
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(modifier = Modifier.height(12.dp))
-                        Button(
-                            onClick = onActivateDeviceAdmin,
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(6.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = StatusPartialOrange,
-                                contentColor = MaterialTheme.colorScheme.surface
-                            )
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Button(
+                                onClick = onActivateDeviceAdmin,
+                                modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(6.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = StatusPartialOrange,
+                                    contentColor = MaterialTheme.colorScheme.surface
+                                )
+                            ) {
+                                Text(
+                                    text = "ACTIVATE POPUP",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 11.sp
+                                )
+                            }
+                            OutlinedButton(
+                                onClick = onOpenDeviceAdminSettings,
+                                modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(6.dp)
+                            ) {
+                                Text(
+                                    text = "PHONE SETTINGS",
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 11.sp
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(6.dp))
+                        OutlinedButton(
+                            onClick = onOpenAppDetailsSettings,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(6.dp)
                         ) {
                             Text(
-                                text = "GRANT DEVICE ADMIN PRIVILEGE",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 12.sp
+                                text = "ALLOW RESTRICTED SETTINGS (APP INFO)",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold
                             )
                         }
                     }

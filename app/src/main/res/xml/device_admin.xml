@@ -3,9 +3,7 @@
     <uses-policies>
         <limit-password />
         <watch-login />
-        <reset-password />
         <force-lock />
-        <wipe-data />
         <expire-password />
         <encrypted-storage />
         <disable-camera />
