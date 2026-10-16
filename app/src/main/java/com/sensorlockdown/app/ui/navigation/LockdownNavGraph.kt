@@ -1,5 +1,7 @@
 package com.sensorlockdown.app.ui.navigation
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -29,6 +31,13 @@ fun LockdownNavGraph(
     val activationProgress by viewModel.activationProgress.collectAsState()
     val auditLogs by viewModel.auditLogs.collectAsState()
     val integrityResult by viewModel.integrityResult.collectAsState()
+
+    val adminLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) {
+        viewModel.refreshDeviceInfo()
+        viewModel.refreshPolicy()
+    }
 
     val startDestination = when {
         !isPinConfigured -> Screen.Welcome.route
@@ -88,7 +97,10 @@ fun LockdownNavGraph(
                     viewModel.refreshAuditLogs()
                     navController.navigate(Screen.AuditLogs.route)
                 },
-                onNavigateToDeviceInfo = { navController.navigate(Screen.DeviceManagementInfo.route) }
+                onNavigateToDeviceInfo = { navController.navigate(Screen.DeviceManagementInfo.route) },
+                onActivateDeviceAdmin = {
+                    adminLauncher.launch(viewModel.createAddDeviceAdminIntent())
+                }
             )
         }
 
@@ -109,6 +121,7 @@ fun LockdownNavGraph(
                 screenCaptureEnabled = viewModel.getScreenCaptureProtection(),
                 onToggleScreenCapture = { viewModel.setScreenCaptureProtection(it) },
                 onChangePinSubmit = { cur, new, conf -> viewModel.changePin(cur, new, conf) },
+                onUninstallAppSubmit = { pin -> viewModel.uninstallAppWithPin(pin) },
                 emergencyRecoverySecret = viewModel.getEmergencyRecoverySecret(),
                 onBack = { navController.popBackStack() }
             )
@@ -124,7 +137,10 @@ fun LockdownNavGraph(
         composable(Screen.DeviceManagementInfo.route) {
             DeviceManagementInfoScreen(
                 deviceInfo = deviceInfo,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onActivateDeviceAdmin = {
+                    adminLauncher.launch(viewModel.createAddDeviceAdminIntent())
+                }
             )
         }
     }

@@ -38,6 +38,20 @@ class DevicePolicyController(private val context: Context) {
         return dpm?.isAdminActive(adminComponent) == true
     }
 
+    /**
+     * Creates system intent to prompt user to activate Device Administrator directly on their phone.
+     */
+    fun createAddDeviceAdminIntent(): android.content.Intent {
+        return android.content.Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
+            putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminComponent)
+            putExtra(
+                DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+                "Activate Device Administrator to allow Device Lockdown to disable camera hardware and enforce system-wide screen capture protection."
+            )
+            addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+    }
+
     // ==========================================
     // Camera Policy
     // ==========================================
@@ -279,6 +293,18 @@ class DevicePolicyController(private val context: Context) {
             } else {
                 userManager?.hasUserRestriction(restrictionKey) == true
             }
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun removeActiveAdmin(): Boolean {
+        val manager = dpm ?: return false
+        return try {
+            if (isAdminActive()) {
+                manager.removeActiveAdmin(adminComponent)
+            }
+            true
         } catch (e: Exception) {
             false
         }

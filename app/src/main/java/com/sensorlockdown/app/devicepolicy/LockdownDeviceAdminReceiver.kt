@@ -31,10 +31,15 @@ class LockdownDeviceAdminReceiver : DeviceAdminReceiver() {
         auditLogger.logEvent(
             eventType = AuditLogger.EventType.UNAUTHORIZED_ATTEMPT,
             actor = AuditLogger.ACTOR_SYSTEM,
-            details = "Warning: User attempted to disable Device Administrator authority.",
+            details = "Unauthorized attempt to disable Device Administrator authority.",
             isSuccess = false
         )
-        return "Disabling Device Administrator will terminate active hardware and privacy lockdown policies!"
+        try {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? android.app.admin.DevicePolicyManager
+            dpm?.lockNow()
+        } catch (ignored: Exception) {}
+
+        return "PROTECTED APP: Uninstallation and deactivation require authentication with your 6-digit PIN inside the Sensor Lockdown app."
     }
 
     override fun onDisabled(context: Context, intent: Intent) {

@@ -78,6 +78,16 @@ class LockdownViewModel(application: Application) : AndroidViewModel(application
 
     fun isPinSet(): Boolean = app.pinAuthenticationService.isPinSet()
 
+    fun isAdminActive(): Boolean = app.devicePolicyController.isAdminActive()
+
+    fun createAddDeviceAdminIntent(): android.content.Intent {
+        return app.devicePolicyController.createAddDeviceAdminIntent()
+    }
+
+    fun openSystemPrivacySettings() {
+        app.privacyController.openSystemPrivacySettings()
+    }
+
     fun refreshDeviceInfo() {
         _deviceInfo.value = DeviceInfo(
             manufacturer = Build.MANUFACTURER.replaceFirstChar { it.uppercase() },
@@ -220,6 +230,52 @@ class LockdownViewModel(application: Application) : AndroidViewModel(application
 
     fun getEmergencyRecoverySecret(): String? {
         return app.securityPreferences.getEmergencyRecoverySecret()
+    }
+
+    fun uninstallAppWithPin(pin: String): AuthResult {
+        val result = app.pinAuthenticationService.verifyPin(pin)
+        if (result is AuthResult.Success) {
+            app.auditLogger.logEvent(
+                eventType = AuditLogger.EventType.LOCKDOWN_DEACTIVATED,
+                actor = AuditLogger.ACTOR_USER,
+                details = "Authorized uninstallation requested with valid PIN.",
+                isSuccess = true
+            )
+            // 1. Release hardware audio/telephony watchdog
+            app.privacyController.applyMicrophoneRestriction(false)
+            app.privacyController.applySpeakerRestriction(false)
+
+            // 2. Unblock uninstall if Device Owner
+            app.devicePolicyController.setUninstallBlocked(false)
+
+            // 3. Remove Device Administrator authority
+            app.devicePolicyController.removeActiveAdmin()
+
+            // 4. Trigger system uninstaller
+            try {
+                val uninstallIntent = android.content.Intent(android.content.Intent.ACTION_DELETE).apply {
+                    data = android.net.Uri.parse("package:${app.packageName}")
+                    flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                app.startActivity(uninstallIntent)
+            } catch (e: Exception) {
+                try {
+                    val uninstallIntent = android.content.Intent(android.content.Intent.ACTION_UNINSTALL_PACKAGE).apply {
+                        data = android.net.Uri.parse("package:${app.packageName}")
+                        flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                    app.startActivity(uninstallIntent)
+                } catch (ignored: Exception) {}
+            }
+        } else {
+            app.auditLogger.logEvent(
+                eventType = AuditLogger.EventType.AUTH_FAILURE,
+                actor = AuditLogger.ACTOR_USER,
+                details = "Unauthorized uninstallation attempt with invalid PIN.",
+                isSuccess = false
+            )
+        }
+        return result
     }
 }
 

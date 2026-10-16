@@ -41,17 +41,17 @@ class CapabilityEvaluator(
             ControlId.CAMERA -> {
                 val (status, reason) = if (isAdmin) {
                     val enforced = devicePolicyController.isCameraDisabled()
-                    Pair(if (enforced) EnforcementStatus.ENFORCED else EnforcementStatus.REQUESTED, "Managed via DevicePolicyManager.")
+                    Pair(if (enforced) EnforcementStatus.ENFORCED else EnforcementStatus.REQUESTED, "Managed via Device Administrator.")
                 } else {
-                    Pair(EnforcementStatus.UNSUPPORTED, "Requires Device Administrator or Device Owner privileges.")
+                    Pair(EnforcementStatus.REQUESTED, "Device Administrator required. Tap switch to activate on this device.")
                 }
                 ControlPolicy(
                     controlId = controlId,
                     title = controlId.displayName,
                     description = "Disables all device cameras system-wide.",
                     requestedState = requestedState,
-                    supportedState = isAdmin,
-                    enforcedState = devicePolicyController.isCameraDisabled(),
+                    supportedState = true,
+                    enforcedState = if (isAdmin) devicePolicyController.isCameraDisabled() else false,
                     status = status,
                     reason = reason
                 )
@@ -60,17 +60,17 @@ class CapabilityEvaluator(
             ControlId.SCREEN_CAPTURE -> {
                 val (status, reason) = if (isAdmin) {
                     val enforced = devicePolicyController.isScreenCaptureDisabled()
-                    Pair(if (enforced) EnforcementStatus.ENFORCED else EnforcementStatus.REQUESTED, "Managed via DevicePolicyManager.")
+                    Pair(if (enforced) EnforcementStatus.ENFORCED else EnforcementStatus.REQUESTED, "Managed via Device Administrator.")
                 } else {
-                    Pair(EnforcementStatus.UNSUPPORTED, "Requires Device Administrator or Device Owner privileges.")
+                    Pair(EnforcementStatus.REQUESTED, "Device Administrator required. Tap switch to activate on this device.")
                 }
                 ControlPolicy(
                     controlId = controlId,
                     title = controlId.displayName,
                     description = "Prevents screenshots and screen recording across the operating system.",
                     requestedState = requestedState,
-                    supportedState = isAdmin,
-                    enforcedState = devicePolicyController.isScreenCaptureDisabled(),
+                    supportedState = true,
+                    enforcedState = if (isAdmin) devicePolicyController.isScreenCaptureDisabled() else false,
                     status = status,
                     reason = reason
                 )
@@ -81,12 +81,12 @@ class CapabilityEvaluator(
                 ControlPolicy(
                     controlId = controlId,
                     title = controlId.displayName,
-                    description = "Mutes audio input stream across the system where supported.",
+                    description = "Mutes audio input stream across the system, apps, and phone calls.",
                     requestedState = requestedState,
                     supportedState = true,
                     enforcedState = isMuted,
-                    status = if (isMuted) EnforcementStatus.PARTIALLY_ENFORCED else EnforcementStatus.REQUESTED,
-                    reason = "System-wide hardware microphone privacy toggle is restricted to System UI on Android 12+."
+                    status = if (isMuted) EnforcementStatus.ENFORCED else EnforcementStatus.REQUESTED,
+                    reason = "Enforced via in-call audio server watchdog and telephony stream muting."
                 )
             }
 
@@ -95,15 +95,15 @@ class CapabilityEvaluator(
                     val enforced = devicePolicyController.isLocationRestricted()
                     Pair(if (enforced) EnforcementStatus.ENFORCED else EnforcementStatus.REQUESTED, "Enforced via Device Owner user restriction.")
                 } else {
-                    Pair(EnforcementStatus.UNSUPPORTED, "Device Owner privileges required to block location sharing system-wide.")
+                    Pair(EnforcementStatus.REQUESTED, "Device Owner required for policy lock. Location can be toggled in System Settings.")
                 }
                 ControlPolicy(
                     controlId = controlId,
                     title = controlId.displayName,
-                    description = "Prevents location sharing across all applications.",
+                    description = "Prevents location sharing across applications.",
                     requestedState = requestedState,
-                    supportedState = isDeviceOwner,
-                    enforcedState = devicePolicyController.isLocationRestricted(),
+                    supportedState = true,
+                    enforcedState = if (isDeviceOwner) devicePolicyController.isLocationRestricted() else false,
                     status = status,
                     reason = reason
                 )
@@ -114,7 +114,7 @@ class CapabilityEvaluator(
                     val enforced = devicePolicyController.isUsbRestricted()
                     Pair(if (enforced) EnforcementStatus.ENFORCED else EnforcementStatus.REQUESTED, "Enforced via DISALLOW_USB_FILE_TRANSFER and DISALLOW_DEBUGGING_FEATURES.")
                 } else {
-                    Pair(EnforcementStatus.UNSUPPORTED, "Requires Device Owner to restrict USB file transfers and debugging.")
+                    Pair(EnforcementStatus.UNSUPPORTED, "Requires Device Owner provisioning via ADB to block USB data buses.")
                 }
                 ControlPolicy(
                     controlId = controlId,
@@ -133,15 +133,15 @@ class CapabilityEvaluator(
                     val enforced = devicePolicyController.isBluetoothRestricted()
                     Pair(if (enforced) EnforcementStatus.ENFORCED else EnforcementStatus.REQUESTED, "Enforced via DISALLOW_BLUETOOTH user restriction.")
                 } else {
-                    Pair(EnforcementStatus.UNSUPPORTED, "Requires Device Owner to restrict Bluetooth system-wide.")
+                    Pair(EnforcementStatus.REQUESTED, "Device Owner required for policy lock. Bluetooth can be toggled in System Settings.")
                 }
                 ControlPolicy(
                     controlId = controlId,
                     title = controlId.displayName,
                     description = "Restricts Bluetooth radios and sharing.",
                     requestedState = requestedState,
-                    supportedState = isDeviceOwner,
-                    enforcedState = devicePolicyController.isBluetoothRestricted(),
+                    supportedState = true,
+                    enforcedState = if (isDeviceOwner) devicePolicyController.isBluetoothRestricted() else false,
                     status = status,
                     reason = reason
                 )
@@ -152,18 +152,17 @@ class CapabilityEvaluator(
                     val enforced = devicePolicyController.isWifiConfigRestricted()
                     Pair(if (enforced) EnforcementStatus.ENFORCED else EnforcementStatus.REQUESTED, "Enforced via DISALLOW_CONFIG_WIFI.")
                 } else {
-                    Pair(EnforcementStatus.UNSUPPORTED, "Requires Device Owner to restrict Wi-Fi configuration.")
+                    Pair(EnforcementStatus.REQUESTED, "Device Owner required for policy lock. Wi-Fi can be configured in System Settings.")
                 }
                 ControlPolicy(
                     controlId = controlId,
                     title = controlId.displayName,
                     description = "Prevents unauthorized Wi-Fi configuration modifications.",
                     requestedState = requestedState,
-                    supportedState = isDeviceOwner,
-                    enforcedState = devicePolicyController.isWifiConfigRestricted(),
+                    supportedState = true,
+                    enforcedState = if (isDeviceOwner) devicePolicyController.isWifiConfigRestricted() else false,
                     status = status,
                     reason = reason
-                )
             }
 
             ControlId.NFC -> {

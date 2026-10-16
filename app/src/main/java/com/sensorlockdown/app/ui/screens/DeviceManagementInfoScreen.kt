@@ -15,6 +15,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,6 +37,7 @@ import com.sensorlockdown.app.ui.theme.Slate500
 import com.sensorlockdown.app.ui.theme.Slate700
 import com.sensorlockdown.app.ui.theme.StatusEnforcedGreen
 import com.sensorlockdown.app.ui.theme.StatusPartialOrange
+import com.sensorlockdown.app.ui.theme.StatusPartialOrangeBg
 import com.sensorlockdown.app.ui.viewmodel.DeviceInfo
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,6 +45,7 @@ import com.sensorlockdown.app.ui.viewmodel.DeviceInfo
 fun DeviceManagementInfoScreen(
     deviceInfo: DeviceInfo,
     onBack: () -> Unit,
+    onActivateDeviceAdmin: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val isOwner = deviceInfo.managementState == DeviceManagementState.DEVICE_OWNER
@@ -101,6 +105,51 @@ fun DeviceManagementInfoScreen(
                         color = Slate500,
                         lineHeight = 18.sp
                     )
+                }
+            }
+
+            // Direct Device Admin Activation Card (No PC / ADB Needed)
+            if (deviceInfo.managementState == DeviceManagementState.UNMANAGED) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(StatusPartialOrangeBg)
+                        .border(1.dp, StatusPartialOrange, RoundedCornerShape(8.dp))
+                        .padding(16.dp)
+                ) {
+                    Column {
+                        Text(
+                            text = "ACTIVATE DEVICE ADMINISTRATOR (NO ADB NEEDED)",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = StatusPartialOrange,
+                            letterSpacing = 1.sp
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "You can grant Device Administrator privilege directly from this device without connecting to a computer. This immediately enables Camera lockdown and Screen Capture blocking.",
+                            fontSize = 13.sp,
+                            lineHeight = 18.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Button(
+                            onClick = onActivateDeviceAdmin,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(6.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = StatusPartialOrange,
+                                contentColor = MaterialTheme.colorScheme.surface
+                            )
+                        ) {
+                            Text(
+                                text = "GRANT DEVICE ADMIN PRIVILEGE",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
                 }
             }
 

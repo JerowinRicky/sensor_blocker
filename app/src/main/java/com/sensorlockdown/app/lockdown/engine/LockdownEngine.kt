@@ -204,10 +204,7 @@ class LockdownEngine(
             ControlId.APP_UNINSTALLATION -> devicePolicyController.setUninstallBlocked(enable)
             ControlId.FACTORY_RESET -> devicePolicyController.setFactoryResetRestricted(enable)
             ControlId.SAFE_BOOT -> devicePolicyController.setSafeBootRestricted(enable)
-            ControlId.SPEAKER -> {
-                audioManager?.setStreamMute(AudioManager.STREAM_MUSIC, enable)
-                true
-            }
+            ControlId.SPEAKER -> privacyController.applySpeakerRestriction(enable)
             else -> false
         }
     }
@@ -225,7 +222,7 @@ class LockdownEngine(
             ControlId.APP_UNINSTALLATION -> devicePolicyController.isUninstallBlocked()
             ControlId.FACTORY_RESET -> devicePolicyController.isFactoryResetRestricted()
             ControlId.SAFE_BOOT -> devicePolicyController.isSafeBootRestricted()
-            ControlId.SPEAKER -> audioManager?.isStreamMute(AudioManager.STREAM_MUSIC) == true
+            ControlId.SPEAKER -> privacyController.isSpeakerMuted()
             else -> false
         }
     }

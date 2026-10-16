@@ -36,8 +36,8 @@ class CapabilityEvaluatorTest {
         whenever(devicePolicyController.isAdminActive()).thenReturn(false)
         val policy = evaluator.evaluateControl(ControlId.CAMERA, requestedState = true)
 
-        assertThat(policy.supportedState).isFalse()
-        assertThat(policy.status).isEqualTo(EnforcementStatus.UNSUPPORTED)
+        assertThat(policy.supportedState).isTrue()
+        assertThat(policy.status).isEqualTo(EnforcementStatus.REQUESTED)
         assertThat(policy.reason).contains("Device Administrator")
     }
 

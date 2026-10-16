@@ -17,12 +17,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -60,12 +62,14 @@ fun SecuritySettingsScreen(
     screenCaptureEnabled: Boolean,
     onToggleScreenCapture: (Boolean) -> Unit,
     onChangePinSubmit: (String, String, String) -> AuthResult,
+    onUninstallAppSubmit: (String) -> AuthResult = { AuthResult.Success },
     emergencyRecoverySecret: String?,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showChangePinDialog by remember { mutableStateOf(false) }
     var showRecoveryDialog by remember { mutableStateOf(false) }
+    var showUninstallDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -183,6 +187,32 @@ fun SecuritySettingsScreen(
                     }
                 }
             }
+
+            // Uninstall Protection Section
+            SettingSectionCard(title = "UNINSTALL PROTECTION") {
+                Text(
+                    text = "This application is protected against unauthorized removal. To uninstall this application or clear device policies, verification of your 6-digit PIN is strictly required.",
+                    fontSize = 12.sp,
+                    color = Slate500,
+                    lineHeight = 16.sp
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Button(
+                    onClick = { showUninstallDialog = true },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(6.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = StatusAlertRed,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Icon(imageVector = Icons.Default.DeleteForever, contentDescription = null)
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Text("UNINSTALL APPLICATION (PIN REQUIRED)", fontWeight = FontWeight.Bold)
+                }
+            }
         }
     }
 
@@ -234,6 +264,14 @@ fun SecuritySettingsScreen(
                     Text("CLOSE")
                 }
             }
+        )
+    }
+
+    // Uninstall App Authorization Dialog
+    if (showUninstallDialog) {
+        UninstallAppDialog(
+            onConfirmUninstall = onUninstallAppSubmit,
+            onDismiss = { showUninstallDialog = false }
         )
     }
 }
@@ -315,6 +353,74 @@ private fun ChangePinDialog(
                 }
             ) {
                 Text(if (stage == 3) "SAVE PIN" else "NEXT")
+            }
+        },
+        dismissButton = {
+            OutlinedButton(onClick = onDismiss) {
+                Text("CANCEL")
+            }
+        }
+    )
+}
+
+@Composable
+private fun UninstallAppDialog(
+    onConfirmUninstall: (String) -> AuthResult,
+    onDismiss: () -> Unit
+) {
+    var enteredPin by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = "Authorize Uninstallation", fontWeight = FontWeight.Bold) },
+        text = {
+            Column {
+                Text(
+                    text = "Enter your 6-digit security PIN to authorize deactivation and complete uninstallation of Sensor Lockdown.",
+                    fontSize = 13.sp,
+                    lineHeight = 18.sp
+                )
+                Spacer(modifier = Modifier.height(14.dp))
+                PinInputView(
+                    pin = enteredPin,
+                    onPinChanged = {
+                        enteredPin = it
+                        errorMessage = null
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                errorMessage?.let {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = it, color = StatusAlertRed, fontSize = 12.sp)
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (enteredPin.length != 6) {
+                        errorMessage = "Please enter full 6-digit PIN"
+                        return@Button
+                    }
+                    when (val result = onConfirmUninstall(enteredPin)) {
+                        is AuthResult.Success -> {
+                            onDismiss()
+                        }
+                        is AuthResult.InvalidPin -> {
+                            errorMessage = "Incorrect PIN. Attempts remaining: ${result.remainingAttemptsBeforeLockout}"
+                        }
+                        is AuthResult.LockedOut -> {
+                            errorMessage = "Locked out for ${result.lockoutSecondsRemaining}s"
+                        }
+                        is AuthResult.ValidationError -> {
+                            errorMessage = result.message
+                        }
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = StatusAlertRed)
+            ) {
+                Text("VERIFY & UNINSTALL")
             }
         },
         dismissButton = {

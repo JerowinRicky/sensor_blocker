@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -74,10 +75,12 @@ fun DashboardScreen(
     onNavigateToSettings: () -> Unit,
     onNavigateToAuditLogs: () -> Unit,
     onNavigateToDeviceInfo: () -> Unit,
+    onActivateDeviceAdmin: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var showActivationDialog by remember { mutableStateOf(false) }
     var showDeactivationDialog by remember { mutableStateOf(false) }
+    var showAdminPromptDialog by remember { mutableStateOf<ControlId?>(null) }
 
     Scaffold(
         topBar = {
@@ -262,6 +265,62 @@ fun DashboardScreen(
                 }
             }
 
+            // Device Administrator Activation Banner
+            if (deviceInfo.managementState == DeviceManagementState.UNMANAGED) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(StatusPartialOrangeBg)
+                            .border(1.dp, StatusPartialOrange.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                            .padding(14.dp)
+                    ) {
+                        Column {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.Security,
+                                    contentDescription = null,
+                                    tint = StatusPartialOrange,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.size(8.dp))
+                                Text(
+                                    text = "DEVICE ADMINISTRATOR AVAILABLE",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = StatusPartialOrange,
+                                    letterSpacing = 1.sp
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "Activate Device Administrator directly on this phone to enable camera lock and screen capture blocking.",
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                lineHeight = 16.sp
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Button(
+                                onClick = onActivateDeviceAdmin,
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(6.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = StatusPartialOrange,
+                                    contentColor = MaterialTheme.colorScheme.surface
+                                )
+                            ) {
+                                Text(
+                                    text = "ACTIVATE DEVICE ADMINISTRATOR",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 12.sp
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
             // Controls Grouped by Category
             for (category in Category.values()) {
                 val categoryControls = lockdownPolicy.controls.values.filter { it.controlId.category == category }
@@ -273,7 +332,14 @@ fun DashboardScreen(
                         item(key = control.controlId.name) {
                             ControlItemCard(
                                 policy = control,
-                                onToggle = { onToggleControl(control.controlId, it) }
+                                onToggle = { enable ->
+                                    if (enable && (control.controlId == ControlId.CAMERA || control.controlId == ControlId.SCREEN_CAPTURE) &&
+                                        deviceInfo.managementState == DeviceManagementState.UNMANAGED
+                                    ) {
+                                        showAdminPromptDialog = control.controlId
+                                    }
+                                    onToggleControl(control.controlId, enable)
+                                }
                             )
                         }
                     }
@@ -342,6 +408,37 @@ fun DashboardScreen(
             dismissButton = {
                 OutlinedButton(onClick = { showDeactivationDialog = false }) {
                     Text("CANCEL")
+                }
+            }
+        )
+    }
+
+    // Prompt Dialog for Device Administrator Activation
+    showAdminPromptDialog?.let { targetControl ->
+        AlertDialog(
+            onDismissRequest = { showAdminPromptDialog = null },
+            title = { Text(text = "Device Administrator Required", fontWeight = FontWeight.Bold) },
+            text = {
+                Text(
+                    text = "${targetControl.displayName} requires Device Administrator privilege to enforce system-wide lockdown.\n\n" +
+                            "Would you like to activate Device Administrator now directly from this phone?",
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showAdminPromptDialog = null
+                        onActivateDeviceAdmin()
+                    }
+                ) {
+                    Text("ACTIVATE NOW")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showAdminPromptDialog = null }) {
+                    Text("DISMISS")
                 }
             }
         )
