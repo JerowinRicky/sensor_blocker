@@ -163,6 +163,7 @@ class CapabilityEvaluator(
                     enforcedState = if (isDeviceOwner) devicePolicyController.isWifiConfigRestricted() else false,
                     status = status,
                     reason = reason
+                )
             }
 
             ControlId.NFC -> {
