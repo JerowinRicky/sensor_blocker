@@ -25,7 +25,7 @@ class EmergencyRecoveryManagerTest {
     fun setup() {
         whenever(context.packageManager).thenReturn(packageManager)
         whenever(context.packageName).thenReturn("com.sensorlockdown.app")
-        manager = EmergencyRecoveryManager(context, preferences, auditLogger)
+        manager = EmergencyRecoveryManager(context, preferences, auditLogger, callingUidProvider = { 1000 })
     }
 
     @Test

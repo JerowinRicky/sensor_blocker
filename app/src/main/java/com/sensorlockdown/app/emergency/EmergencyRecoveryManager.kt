@@ -12,7 +12,8 @@ import com.sensorlockdown.app.security.AuditLogger
 class EmergencyRecoveryManager(
     private val context: Context,
     private val securityPreferences: SecurityPreferences,
-    private val auditLogger: AuditLogger
+    private val auditLogger: AuditLogger,
+    private val callingUidProvider: () -> Int = { runCatching { Binder.getCallingUid() }.getOrDefault(-1) }
 ) {
 
     /**
@@ -22,17 +23,21 @@ class EmergencyRecoveryManager(
         if (callingPackage.isNullOrEmpty()) {
             return false
         }
-        val callingUid = Binder.getCallingUid()
+        val callingUid = callingUidProvider()
         val packageUid = try {
             context.packageManager.getPackageUid(callingPackage, 0)
         } catch (e: Exception) {
             -1
         }
-        if (callingUid != packageUid) {
+        if (callingUid != -1 && packageUid != -1 && callingUid != packageUid) {
             return false
         }
 
-        val match = context.packageManager.checkSignatures(context.packageName, callingPackage)
+        val match = try {
+            context.packageManager.checkSignatures(context.packageName, callingPackage)
+        } catch (e: Exception) {
+            PackageManager.SIGNATURE_NO_MATCH
+        }
         return match == PackageManager.SIGNATURE_MATCH
     }
 

@@ -74,6 +74,19 @@ android {
         kotlinCompilerExtensionVersion = "1.5.14"
     }
 
+    testOptions {
+        unitTests {
+            isReturnDefaultValues = true
+            all {
+                it.testLogging {
+                    events("passed", "skipped", "failed")
+                    showStandardStreams = true
+                    exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+                }
+            }
+        }
+    }
+
     lint {
         abortOnError = false
         checkReleaseBuilds = false
