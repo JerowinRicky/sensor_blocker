@@ -153,7 +153,7 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
 }
 
-tasks.named("assembleDebug") {
+tasks.matching { it.name == "assembleDebug" }.configureEach {
     dependsOn(":launcher-app:assembleDebug")
     doLast {
         val launcherApkDir = rootProject.file("launcher-app/build/outputs/apk/debug")
