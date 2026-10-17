@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.ButtonDefaults
@@ -84,12 +86,12 @@ fun PinAuthScreen(
         LauncherScreenState.POWER_OFF_AUTH -> {
             title = "POWER OFF / RESTART"
             subtitle = "Enter your 6-digit PIN to authorize turning off or restarting the device."
-            icon = androidx.compose.material.icons.Icons.Default.PowerSettingsNew
+            icon = Icons.Default.PowerSettingsNew
         }
         LauncherScreenState.BLOCKED_APP_AUTH -> {
             title = "APP ACCESS RESTRICTED"
             subtitle = "An unapproved app was blocked from opening via notification. Enter Master PIN to continue."
-            icon = androidx.compose.material.icons.Icons.Default.Block
+            icon = Icons.Default.Block
         }
         else -> {
             title = "SECURITY AUTHENTICATION"
