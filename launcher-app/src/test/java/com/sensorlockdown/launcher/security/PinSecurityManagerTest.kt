@@ -46,22 +46,28 @@ class PinSecurityManagerTest {
         }
 
         `when`(mockPrefs.edit()).thenReturn(mockEditor)
-        `when`(mockEditor.putString(anyString(), anyString())).thenAnswer { invocation ->
-            val key = invocation.arguments[0] as String
-            val value = invocation.arguments[1] as String
-            storage[key] = value
+        `when`(mockEditor.putString(any(), any())).thenAnswer { invocation ->
+            val key = invocation.arguments[0] as? String
+            val value = invocation.arguments[1] as? String
+            if (key != null && value != null) {
+                storage[key] = value
+            }
             mockEditor
         }
-        `when`(mockEditor.putInt(anyString(), anyInt())).thenAnswer { invocation ->
-            val key = invocation.arguments[0] as String
+        `when`(mockEditor.putInt(any(), anyInt())).thenAnswer { invocation ->
+            val key = invocation.arguments[0] as? String
             val value = invocation.arguments[1] as Int
-            storage[key] = value
+            if (key != null) {
+                storage[key] = value
+            }
             mockEditor
         }
-        `when`(mockEditor.putLong(anyString(), anyLong())).thenAnswer { invocation ->
-            val key = invocation.arguments[0] as String
+        `when`(mockEditor.putLong(any(), anyLong())).thenAnswer { invocation ->
+            val key = invocation.arguments[0] as? String
             val value = invocation.arguments[1] as Long
-            storage[key] = value
+            if (key != null) {
+                storage[key] = value
+            }
             mockEditor
         }
     }

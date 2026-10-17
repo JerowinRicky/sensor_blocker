@@ -2,8 +2,8 @@ package com.sensorlockdown.launcher.security
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Base64
 import java.security.SecureRandom
+import java.util.Base64
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 
@@ -27,9 +27,10 @@ class PinSecurityManager(context: Context) {
         SecureRandom().nextBytes(salt)
         val hash = hashPin(pin, salt)
 
+        val encoder = Base64.getEncoder()
         prefs.edit()
-            .putString(KEY_PIN_SALT, Base64.encodeToString(salt, Base64.NO_WRAP))
-            .putString(KEY_PIN_HASH, Base64.encodeToString(hash, Base64.NO_WRAP))
+            .putString(KEY_PIN_SALT, encoder.encodeToString(salt))
+            .putString(KEY_PIN_HASH, encoder.encodeToString(hash))
             .putInt(KEY_FAILED_ATTEMPTS, 0)
             .putLong(KEY_LOCKOUT_UNTIL, 0L)
             .apply()
@@ -42,8 +43,9 @@ class PinSecurityManager(context: Context) {
         val saltBase64 = prefs.getString(KEY_PIN_SALT, null) ?: return false
         val storedHashBase64 = prefs.getString(KEY_PIN_HASH, null) ?: return false
 
-        val salt = Base64.decode(saltBase64, Base64.NO_WRAP)
-        val storedHash = Base64.decode(storedHashBase64, Base64.NO_WRAP)
+        val decoder = Base64.getDecoder()
+        val salt = decoder.decode(saltBase64)
+        val storedHash = decoder.decode(storedHashBase64)
         val computedHash = hashPin(pin, salt)
 
         val isValid = constantTimeEquals(storedHash, computedHash)
