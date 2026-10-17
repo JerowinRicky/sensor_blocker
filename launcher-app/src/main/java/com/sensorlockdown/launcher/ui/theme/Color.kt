@@ -17,3 +17,4 @@ val StatusRed = Color(0xFFEF4444)      // Red 500
 val TextPrimary = Color(0xFFF8FAFC)    // Slate 50
 val TextSecondary = Color(0xFF94A3B8)  // Slate 400
 val TextDisabled = Color(0xFF64748B)   // Slate 500
+

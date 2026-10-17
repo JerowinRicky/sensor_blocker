@@ -26,3 +26,4 @@ fun SecureLauncherTheme(
         content = content
     )
 }
+

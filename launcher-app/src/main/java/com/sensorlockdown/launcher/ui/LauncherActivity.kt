@@ -109,3 +109,4 @@ class LauncherActivity : ComponentActivity() {
         viewModel.refreshApps()
     }
 }
+

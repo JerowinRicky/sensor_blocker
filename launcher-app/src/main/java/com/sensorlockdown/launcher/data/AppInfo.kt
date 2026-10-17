@@ -13,3 +13,4 @@ data class AppInfo(
     val isAllowed: Boolean = false,
     val isSystemApp: Boolean = false
 )
+

@@ -49,3 +49,4 @@ class LauncherPreferences(context: Context) {
         private const val KEY_SETUP_COMPLETED = "initial_setup_completed"
     }
 }
+

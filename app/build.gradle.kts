@@ -153,3 +153,17 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
 }
 
+tasks.named("assembleDebug") {
+    dependsOn(":launcher-app:assembleDebug")
+    doLast {
+        val launcherApkDir = rootProject.file("launcher-app/build/outputs/apk/debug")
+        val destDir = file("build/outputs/apk/debug")
+        if (launcherApkDir.exists() && destDir.exists()) {
+            launcherApkDir.listFiles()?.filter { it.extension == "apk" }?.forEach { apkFile ->
+                apkFile.copyTo(destDir.resolve("launcher-${apkFile.name}"), overwrite = true)
+            }
+        }
+    }
+}
+
+

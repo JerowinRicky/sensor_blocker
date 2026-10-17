@@ -112,4 +112,7 @@ dependencies {
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("com.google.truth:truth:1.4.2")
+    testImplementation("org.mockito:mockito-core:5.11.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.3.1")
 }
+

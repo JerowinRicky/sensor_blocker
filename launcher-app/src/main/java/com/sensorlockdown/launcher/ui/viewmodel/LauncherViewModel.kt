@@ -248,3 +248,4 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         _screenState.value = LauncherScreenState.HOME
     }
 }
+

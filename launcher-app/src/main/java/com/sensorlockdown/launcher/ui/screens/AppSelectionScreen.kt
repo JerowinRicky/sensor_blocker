@@ -290,3 +290,4 @@ fun drawableToBitmap(drawable: Drawable): Bitmap? {
         null
     }
 }
+
