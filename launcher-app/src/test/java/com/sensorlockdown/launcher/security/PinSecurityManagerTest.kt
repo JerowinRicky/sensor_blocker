@@ -11,6 +11,7 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
 
 class PinSecurityManagerTest {
 
@@ -23,15 +24,15 @@ class PinSecurityManagerTest {
     @Before
     fun setup() {
         storage.clear()
-        `when`(mockContext.getSharedPreferences(anyString(), anyInt())).thenReturn(mockPrefs)
+        `when`(mockContext.getSharedPreferences(any(), anyInt())).thenReturn(mockPrefs)
 
-        `when`(mockPrefs.contains(anyString())).thenAnswer { invocation ->
+        `when`(mockPrefs.contains(any())).thenAnswer { invocation ->
             val key = invocation.arguments[0] as String
             storage.containsKey(key)
         }
-        `when`(mockPrefs.getString(anyString(), any())).thenAnswer { invocation ->
-            val key = invocation.arguments[0] as String
-            val def = invocation.arguments[1]
+        `when`(mockPrefs.getString(any(), anyOrNull())).thenAnswer { invocation ->
+            val key = invocation.arguments[0] as? String
+            val def = invocation.arguments[1] as? String
             (storage[key] as? String) ?: def
         }
         `when`(mockPrefs.getInt(anyString(), anyInt())).thenAnswer { invocation ->
