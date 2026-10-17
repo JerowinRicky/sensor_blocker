@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.OpenInNew
+import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.AlertDialog
@@ -75,11 +76,14 @@ import java.util.Locale
 @Composable
 fun LauncherHomeScreen(
     allowedApps: List<AppInfo>,
+    isAccessibilityEnabled: Boolean,
     onLaunchApp: (AppInfo) -> Unit,
     onRequestUninstall: (AppInfo) -> Unit,
     onLockLauncher: () -> Unit,
     onRequestManageApps: () -> Unit,
     onRequestSwitchDefault: () -> Unit,
+    onRequestPowerOff: () -> Unit,
+    onOpenAccessibilitySettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showMenu by remember { mutableStateOf(false) }
@@ -160,11 +164,27 @@ fun LauncherHomeScreen(
                             }
                         )
                         DropdownMenuItem(
+                            text = { Text("Power Off / Restart (PIN)", color = TextPrimary, fontSize = 13.sp) },
+                            leadingIcon = { Icon(Icons.Default.PowerSettingsNew, contentDescription = null, tint = PrimaryBlue) },
+                            onClick = {
+                                showMenu = false
+                                onRequestPowerOff()
+                            }
+                        )
+                        DropdownMenuItem(
                             text = { Text("Lock System Now", color = TextPrimary, fontSize = 13.sp) },
                             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = PrimaryBlue) },
                             onClick = {
                                 showMenu = false
                                 onLockLauncher()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Security Service Settings", color = TextPrimary, fontSize = 13.sp) },
+                            leadingIcon = { Icon(Icons.Default.Security, contentDescription = null, tint = PrimaryBlue) },
+                            onClick = {
+                                showMenu = false
+                                onOpenAccessibilitySettings()
                             }
                         )
                     }
@@ -185,7 +205,7 @@ fun LauncherHomeScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 16.dp, horizontal = 24.dp),
+                    .padding(top = 16.dp, bottom = 8.dp, start = 24.dp, end = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
@@ -203,7 +223,81 @@ fun LauncherHomeScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            // Security Accessibility Service Status Card
+            if (!isAccessibilityEnabled) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 6.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(DarkSurfaceVariant)
+                        .border(1.dp, StatusRed.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+                        .padding(14.dp)
+                ) {
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Security,
+                                contentDescription = null,
+                                tint = StatusRed,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Notification & Power Protection Inactive",
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary,
+                                fontSize = 12.sp
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Enable Secure Launcher in Accessibility Settings to block unauthorized apps opened from notifications and require PIN for power off / restart.",
+                            color = TextSecondary,
+                            fontSize = 11.sp,
+                            lineHeight = 15.sp
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(
+                            onClick = onOpenAccessibilitySettings,
+                            colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "ENABLE IN ACCESSIBILITY SETTINGS",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+            } else {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Security,
+                        contentDescription = null,
+                        tint = StatusGreen,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Notification & Power Guard Active",
+                        fontSize = 11.sp,
+                        color = StatusGreen,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
 
             // App Drawer Grid
             if (allowedApps.isEmpty()) {

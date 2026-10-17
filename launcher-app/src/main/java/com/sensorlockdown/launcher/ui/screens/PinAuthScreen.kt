@@ -81,6 +81,16 @@ fun PinAuthScreen(
             subtitle = "Enter your 6-digit PIN to modify the allowed apps whitelist."
             icon = Icons.Default.Lock
         }
+        LauncherScreenState.POWER_OFF_AUTH -> {
+            title = "POWER OFF / RESTART"
+            subtitle = "Enter your 6-digit PIN to authorize turning off or restarting the device."
+            icon = androidx.compose.material.icons.Icons.Default.PowerSettingsNew
+        }
+        LauncherScreenState.BLOCKED_APP_AUTH -> {
+            title = "APP ACCESS RESTRICTED"
+            subtitle = "An unapproved app was blocked from opening via notification. Enter Master PIN to continue."
+            icon = androidx.compose.material.icons.Icons.Default.Block
+        }
         else -> {
             title = "SECURITY AUTHENTICATION"
             subtitle = "Enter your 6-digit PIN."

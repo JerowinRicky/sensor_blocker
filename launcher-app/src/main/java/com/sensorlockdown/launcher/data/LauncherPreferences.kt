@@ -43,10 +43,37 @@ class LauncherPreferences(context: Context) {
         prefs.edit().putBoolean(KEY_SETUP_COMPLETED, completed).apply()
     }
 
+    fun isNotificationDrawerBlocked(): Boolean {
+        return prefs.getBoolean(KEY_BLOCK_NOTIFICATION_DRAWER, true)
+    }
+
+    fun setNotificationDrawerBlocked(blocked: Boolean) {
+        prefs.edit().putBoolean(KEY_BLOCK_NOTIFICATION_DRAWER, blocked).apply()
+    }
+
+    fun isPowerMenuProtected(): Boolean {
+        return prefs.getBoolean(KEY_PROTECT_POWER_MENU, true)
+    }
+
+    fun setPowerMenuProtected(protected: Boolean) {
+        prefs.edit().putBoolean(KEY_PROTECT_POWER_MENU, protected).apply()
+    }
+
+    fun isLockOnScreenOff(): Boolean {
+        return prefs.getBoolean(KEY_LOCK_ON_SCREEN_OFF, true)
+    }
+
+    fun setLockOnScreenOff(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_LOCK_ON_SCREEN_OFF, enabled).apply()
+    }
+
     companion object {
         private const val PREFS_NAME = "secure_launcher_app_prefs"
         private const val KEY_ALLOWED_PACKAGES = "allowed_packages"
         private const val KEY_SETUP_COMPLETED = "initial_setup_completed"
+        private const val KEY_BLOCK_NOTIFICATION_DRAWER = "block_notification_drawer"
+        private const val KEY_PROTECT_POWER_MENU = "protect_power_menu"
+        private const val KEY_LOCK_ON_SCREEN_OFF = "lock_on_screen_off"
     }
 }
 

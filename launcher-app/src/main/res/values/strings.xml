@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="launcher_app_name">Secure Launcher</string>
+    <string name="accessibility_service_description">Monitors and restricts unauthorized application launches from notifications, protects power off and restart controls, and prevents device tampering.</string>
+    <string name="device_admin_description">Protects Secure Launcher against unauthorized uninstallation and enforces device security policies.</string>
 </resources>
 

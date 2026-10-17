@@ -21,7 +21,9 @@ enum class LauncherScreenState {
     PIN_LOGIN,
     HOME,
     APP_MANAGEMENT,
-    SWITCH_DEFAULT_CONFIRM
+    SWITCH_DEFAULT_CONFIRM,
+    POWER_OFF_AUTH,
+    BLOCKED_APP_AUTH
 }
 
 class LauncherViewModel(application: Application) : AndroidViewModel(application) {
@@ -32,6 +34,12 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
 
     private val _screenState = MutableStateFlow<LauncherScreenState>(LauncherScreenState.PIN_LOGIN)
     val screenState: StateFlow<LauncherScreenState> = _screenState.asStateFlow()
+
+    private val _blockedPackageName = MutableStateFlow<String?>(null)
+    val blockedPackageName: StateFlow<String?> = _blockedPackageName.asStateFlow()
+
+    private val _isAccessibilityEnabled = MutableStateFlow(false)
+    val isAccessibilityEnabled: StateFlow<Boolean> = _isAccessibilityEnabled.asStateFlow()
 
     private val _currentPinInput = MutableStateFlow("")
     val currentPinInput: StateFlow<String> = _currentPinInput.asStateFlow()
@@ -144,6 +152,27 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                     handleFailedAuth()
                 }
             }
+            LauncherScreenState.POWER_OFF_AUTH -> {
+                if (securityManager.verifyPin(pin)) {
+                    _currentPinInput.value = ""
+                    _errorMessage.value = null
+                    _screenState.value = LauncherScreenState.HOME
+                    com.sensorlockdown.launcher.service.LauncherSecurityService.authorizePowerActions(30_000L)
+                    com.sensorlockdown.launcher.service.LauncherSecurityService.triggerPowerDialog()
+                } else {
+                    handleFailedAuth()
+                }
+            }
+            LauncherScreenState.BLOCKED_APP_AUTH -> {
+                if (securityManager.verifyPin(pin)) {
+                    _currentPinInput.value = ""
+                    _errorMessage.value = null
+                    _blockedPackageName.value = null
+                    _screenState.value = LauncherScreenState.HOME
+                } else {
+                    handleFailedAuth()
+                }
+            }
             else -> {}
         }
     }
@@ -178,6 +207,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun refreshApps() {
+        checkSecurityStatus()
         viewModelScope.launch {
             val allowed = preferences.getAllowedPackages()
             _selectedPackagesInSetup.value = allowed
@@ -185,6 +215,10 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
             _allInstalledApps.value = installed
             _allowedApps.value = installed.filter { it.isAllowed }
         }
+    }
+
+    fun checkSecurityStatus() {
+        _isAccessibilityEnabled.value = com.sensorlockdown.launcher.service.LauncherSecurityService.isRunning()
     }
 
     fun setSearchQuery(query: String) {
@@ -217,6 +251,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun launchApp(appInfo: AppInfo): Boolean {
+        com.sensorlockdown.launcher.service.LauncherSecurityService.isLauncherForegroundOrLockedState = false
         return discoveryService.launchApp(appInfo.packageName, appInfo.activityName)
     }
 
@@ -228,6 +263,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         _currentPinInput.value = ""
         _errorMessage.value = null
         _screenState.value = LauncherScreenState.PIN_LOGIN
+        com.sensorlockdown.launcher.service.LauncherSecurityService.isLauncherForegroundOrLockedState = true
     }
 
     fun requestSwitchDefaultLauncher() {
@@ -245,7 +281,49 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     fun cancelAction() {
         _currentPinInput.value = ""
         _errorMessage.value = null
+        _blockedPackageName.value = null
         _screenState.value = LauncherScreenState.HOME
+    }
+
+    fun handleBlockedPackage(packageName: String) {
+        _blockedPackageName.value = packageName
+        _currentPinInput.value = ""
+        _errorMessage.value = null
+        _screenState.value = LauncherScreenState.BLOCKED_APP_AUTH
+        com.sensorlockdown.launcher.service.LauncherSecurityService.isLauncherForegroundOrLockedState = true
+    }
+
+    fun handlePowerAuthRequest() {
+        _currentPinInput.value = ""
+        _errorMessage.value = null
+        _screenState.value = LauncherScreenState.POWER_OFF_AUTH
+        com.sensorlockdown.launcher.service.LauncherSecurityService.isLauncherForegroundOrLockedState = true
+    }
+
+    fun requestPowerOff() {
+        _currentPinInput.value = ""
+        _errorMessage.value = null
+        _screenState.value = LauncherScreenState.POWER_OFF_AUTH
+        com.sensorlockdown.launcher.service.LauncherSecurityService.isLauncherForegroundOrLockedState = true
+    }
+
+    fun onScreenTurnedOff() {
+        if (preferences.isLockOnScreenOff() &&
+            securityManager.isPinConfigured() &&
+            preferences.isInitialSetupCompleted()
+        ) {
+            _currentPinInput.value = ""
+            _errorMessage.value = null
+            _screenState.value = LauncherScreenState.PIN_LOGIN
+            com.sensorlockdown.launcher.service.LauncherSecurityService.isLauncherForegroundOrLockedState = true
+        }
+    }
+
+    fun openAccessibilitySettings() {
+        val intent = android.content.Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
+            addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        getApplication<Application>().startActivity(intent)
     }
 }
 
